@@ -35,7 +35,6 @@ const getPayments = async (req, res) => {
   
   const purchases = await Promise.all(
     purchasesIds.map((purchaseId) => {
-      console.log('res.data', res.data)
       return axios.get(`http://purchases:4000/purchases/${purchaseId}`)
         .then(res => {
           return res.data
@@ -73,6 +72,46 @@ const getPayments = async (req, res) => {
   })
 }
 
+const getPurchaseById = async (req, res) => {
+  console.log('getPurchaseById')
+  const purchaseId = req.params.purchaseId;
+  try {
+    const response = await pool.query('SELECT * FROM purchases WHERE id = $1', [purchaseId])
+    const purchaseFound = response.rows[0]
+    res.status(200).send(purchaseFound)
+  } catch(e) {
+    console.log(`Could not find a purchase with id ${purchaseId}`)
+    throw new Error(`No purchase with id ${purchaseId} found`);
+  }
+}
+
+const createPayment = async (req, res) => {
+  console.log('createPayment')
+  const { purchaseId, expirationDate, amount, feeNumber } = req.body;
+
+  try {
+    await pool.query('INSERT INTO payments ("purchaseId", "expirationDate", amount, "feeNumber") VALUES ($1, $2, $3, $4)', [purchaseId, expirationDate, amount, feeNumber])
+    res.status(200).json(`Payment created succesfully`)
+  } catch (e) {
+    console.log(`Payment could not be created`)
+    throw new Error(`Payment could not be created`)
+  }
+}
+
+const deletePayment = async (req, res) => {
+  console.log('deletePayment')
+  const paymentId = req.params.paymentId;
+  try {
+    await pool.query('DELETE FROM payments WHERE id = $1', [paymentId])
+    res.status(200).json(`Payment with id ${paymentId} deleted succesfully`)
+  } catch (e) {
+    console.log(`Payment with id ${paymentId} could not be deleted`)
+    throw new Error(`Payment with id ${paymentId} could not be deleted`)
+  }
+}
+
 module.exports = {
-  getPayments
+  getPayments,
+  createPayment,
+  deletePayment
 }
