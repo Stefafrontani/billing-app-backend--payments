@@ -13,43 +13,17 @@ const pool = new Pool({
 
 const getPayments = async (req, res) => {
   console.log('getPayments')
-  const response = await pool.query('SELECT * FROM payments');
-  res.status(200).send(response.rows)
-}
+  const date = new Date()
 
-const getPaymentById = async (req, res) => {
-  console.log('getPaymentById')
-  const paymentId = req.params.id;
-  const response = await pool.query('SELECT * FROM payments WHERE id = $1', [paymentId])
-  res.status(200).json(response.rows)
-}
+  const pastPayments = await pool.query('SELECT * FROM payments WHERE "expirationDate" < CURRENT_DATE')
+  const futurePayments = await pool.query('SELECT * FROM payments WHERE "expirationDate" > CURRENT_DATE')
 
-const createPayment = async (req, res) => {
-  console.log('createPayment')
-  const { name, email } = req.body;
-  const response = await pool.query('INSERT INTO payments (name, email) VALUES ($1, $2)', [name, email])
-  res.status(200).json(response.rows)
-}
-  
-const updatePayment = async (req, res) => {
-  console.log('updatePayment')
-  const paymentId = req.params.id;
-  const { name, email } = req.body;
-  const response = await pool.query('UPDATE payments SET name = $1, email = $2 WHERE id = $3', [name, email, paymentId])
-  res.status(200).json(response.rows)
-}
-
-const deletePayment = async (req, res) => {
-  console.log('deletePayment')
-  const paymentId = req.params.id;
-  const response = await pool.query('DELETE FROM payments WHERE id = $1', [paymentId])
-  res.status(200).json(response.rows)
+  res.status(200).send({
+    pastPayments: pastPayments.rows,
+    futurePayments: futurePayments.rows
+  })
 }
 
 module.exports = {
-  getPayments,
-  getPaymentById,
-  createPayment,
-  deletePayment,
-  updatePayment
+  getPayments
 }
