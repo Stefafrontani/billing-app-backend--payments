@@ -1,0 +1,29 @@
+{
+  "name": "billing-app-backend--expenditures",
+  "version": "1.0.0",
+  "description": "Repository for expenditures microservice",
+  "main": "index.js",
+  "scripts": {
+    "create-user": "cd C:/Program Files/PostgreSQL/13/bin && createuser -U postgres -s billinguser",
+    "change-password": "psql -U postgres -d template1 -c \"ALTER ROLE billinguser WITH PASSWORD 'password';\"",
+    "create-db": "cd C:/Program Files/PostgreSQL/13/bin && createdb -U billinguser -p 5432 purchasesdb",
+    "create-migration": "node-pg-migrate create",
+    "migrate-up": "node-pg-migrate --envPath src/database/.env up",
+    "migrate-down": "node-pg-migrate --envPath src/database/.env down",
+    "start": "nodemon -L src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^3.3.6",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "node-pg-migrate": "^5.10.0",
+    "pg": "^8.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
