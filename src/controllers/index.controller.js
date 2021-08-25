@@ -32,7 +32,6 @@ const getPayments = async (req, res) => {
     }
   }, [])
 
-  
   const purchases = await Promise.all(
     purchasesIds.map((purchaseId) => {
       return axios.get(`http://purchases:4000/purchases/${purchaseId}`)
@@ -90,8 +89,9 @@ const createPayment = async (req, res) => {
   const { purchaseId, expirationDate, amount, feeNumber } = req.body;
 
   try {
-    await pool.query('INSERT INTO payments ("purchaseId", "expirationDate", amount, "feeNumber") VALUES ($1, $2, $3, $4)', [purchaseId, expirationDate, amount, feeNumber])
-    res.status(200).json(`Payment created succesfully`)
+    const paymentCreatedResponse = await pool.query('INSERT INTO payments ("purchaseId", "expirationDate", amount, "feeNumber") VALUES ($1, $2, $3, $4) RETURNING *', [purchaseId, expirationDate, amount, feeNumber])
+    const paymentCreated = paymentCreatedResponse.rows[0]
+    res.status(200).json(paymentCreated)
   } catch (e) {
     console.log(`Payment could not be created`)
     throw new Error(`Payment could not be created`)
